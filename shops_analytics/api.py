@@ -31,7 +31,8 @@ class ShopAnalytics(views.APIView):
         df['profit'] = df['profit'].apply(pd.to_numeric)
         df = df.groupby('shop').agg(avg_profit=('profit', 'mean'), total_sales=('shop', 'count'))
 
-        def agg_f(agg_df):
+        def abc_stat(agg_df):
+            product_id_index = 0
             products_categories = {
                 'A': {'max_val': 80, 'min_val': 0, 'name': 'A'},
                 'B': {'max_val': 95, 'min_val': 80, 'name': 'B'},
@@ -48,16 +49,16 @@ class ShopAnalytics(views.APIView):
                 category_count += row_value
 
                 if products_categories['A']['min_val'] <= category_count <= products_categories['A']['max_val']:
-                    abc[i[0]] = products_categories['A']['name']
+                    abc[i[product_id_index]] = products_categories['A']['name']
                 elif products_categories['B']['min_val'] < category_count <= products_categories['B']['max_val']:
-                    abc[i[0]] = products_categories['B']['name']
+                    abc[i[product_id_index]] = products_categories['B']['name']
                 elif products_categories['C']['min_val'] < category_count <= products_categories['C']['max_val']:
-                    abc[i[0]] = products_categories['C']['name']
+                    abc[i[product_id_index]] = products_categories['C']['name']
 
             return json.dumps(abc)
 
         df1 = df1.groupby(['product', 'shop']).agg(product_profit_sum=('profit', 'sum'))
-        df1 = df1.groupby('shop').agg(agg_f)
+        df1 = df1.groupby('shop').agg(abc_stat)
         df1 = df1.rename(columns={'product_profit_sum': 'abc'})
 
         res_data = df.join(df1).to_json(orient="index")
